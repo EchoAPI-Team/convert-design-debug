@@ -1,0 +1,28 @@
+{
+  "name": "convert-design-debug",
+  "version": "1.0.0",
+  "description": "Update and transform API data for design and debug.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EchoAPI-Team/convert-design-debug.git"
+  },
+  "keywords": [
+    "convert-design-debug"
+  ],
+  "author": "Daniel Anderson <support@echoapi.com> (https://github.com/Apipost-Team)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/EchoAPI-Team/convert-design-debug/issues"
+  },
+  "homepage": "https://github.com/EchoAPI-Team/convert-design-debug#readme",
+  "dependencies": {
+    "apipost-mock-schema": "^0.0.46",
+    "json2json-schema": "^0.2.8",
+    "json5": "^2.2.3",
+    "lodash": "^4.17.21"
+  }
+}
