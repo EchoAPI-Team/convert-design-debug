@@ -68,7 +68,7 @@ const design2debug = (openapi, format) => {
 
         // Prepare the request structure
         const request = {
-            header: { "parameter": [] }, query: { "parameter": [] }, cookie: { "parameter": [] }, body: {
+            header: { "parameter": [] }, query: { "parameter": [] }, cookie: { "parameter": [] }, restful: { "parameter": [] }, body: {
                 "mode": "none",
                 "parameter": [],
                 "raw": ""
