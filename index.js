@@ -148,7 +148,13 @@ const design2debug = (openapi, format) => {
                     // Set raw body data
                     try {
                         const mockData = await myMockSchema.mock(contentSchema);
-                        _.set(request, 'body.raw', mockData || '');
+
+                        if (!_.isString(mockData)) {
+                            _.set(request, 'body.raw', JSON.stringify(mockData, null, "\t") || '');
+                        } else {
+                            _.set(request, 'body.raw', mockData || '');
+                        }
+
                     } catch (e) { }
                     break;
             }
