@@ -33,7 +33,7 @@ const diffJson = (source, dist, currentPath = '', diff = []) => {
                     diff.push(newPath);
                 }
             } catch (e) { }
-        } 
+        }
         // Check for differences in 'parameter' arrays
         else if (_.isArray(item) && key === 'parameter') {
             const sourceKeys = _.keys(_.mapValues(_.keyBy(item, 'key'), 'value'));
@@ -43,7 +43,7 @@ const diffJson = (source, dist, currentPath = '', diff = []) => {
             if (!_.isEqual(sourceKeys, distKeys)) {
                 diff.push(newPath);
             }
-        } 
+        }
         // Recursively check for differences in objects
         else if (_.isPlainObject(item)) {
             diffJson(item, _.get(dist, key, {}), newPath, diff);
@@ -74,7 +74,7 @@ const design2debug = (openapi, format) => {
                 "raw": ""
             }
         };
-        
+
         // Extract parameters from the OpenAPI definition
         const parameters = _.get(openapi, `paths['${url}'].${method}.parameters`);
         _.forEach(parameters, (item) => {
@@ -241,6 +241,12 @@ const debug2design = (openapi, format) => {
                 // TODO: Add required fields and descriptions
                 break;
             case 'binary':
+                _.assign(bodySchema, {
+                    "type": "string",
+                    "properties": {},
+                    "format": "binary"
+                })
+
                 break;
             case 'msgpack':
             case 'json':
@@ -285,201 +291,3 @@ const debug2design = (openapi, format) => {
 
 // Export the design2debug and debug2design functions
 module.exports = { design2debug, debug2design }
-
-
-
-const openapi = { "info": { "title": "Local Project", "description": "", "version": "1.0.0" }, "openapi": "3.0.3", "servers": [{ "variables": { "a": { "default": "123", "description": "" } }, "url": "", "description": "Default" }], "paths": { "www.baidu.com": { "post": { "summary": "HTTP Request", "description": "", "tags": [], "parameters": [{ "name": "h1", "in": "header", "description": "", "required": true, "example": "1", "schema": { "type": "string" } }, { "name": "h2", "in": "header", "description": "", "required": true, "example": "2", "schema": { "type": "string" } }, { "name": "q1", "in": "query", "description": "", "required": true, "example": "1", "schema": { "type": "string" }, "key": "q1" }, { "name": "q2", "in": "query", "description": "", "required": true, "example": "2", "schema": { "type": "string" }, "key": "q2" }], "requestBody": { "content": { "multipart/form-data": { "schema": { "type": "object", "properties": { "b2": { "type": "string", "mock": { "mock": "2" } }, "b1": { "type": "string" } }, "ECHOAPI_ORDERS": ["b1", "b2"], "required": [] } }, "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "object", "properties": { "title": { "type": "string", "mock": { "mock": "@ctitle" } } }, "ECHOAPI_ORDERS": ["title"], "required": [] } }, "ECHOAPI_ORDERS": ["data"], "required": [] } } } }, "responses": { "200": { "description": "Success", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "object", "properties": { "id": { "type": "string", "mock": { "mock": "@guid" } } }, "ECHOAPI_ORDERS": ["id"], "required": [] } }, "ECHOAPI_ORDERS": ["data"], "required": [] }, "example": "{\n\t\"data\": {\n\t\t\"id\": \"6cb750b4-63da-4592-a405-5934d48d1d65\"\n\t}\n}" } } }, "404": { "description": "Failure", "content": { "application/json": { "schema": { "type": "object", "properties": { "data": { "type": "object", "properties": { "code": { "type": "number", "mock": { "mock": "1000" } } }, "ECHOAPI_ORDERS": ["code"], "required": [] } }, "ECHOAPI_ORDERS": ["data"], "required": [] }, "example": "" } } } } } } } };
-
-const format = {
-    "method": "POST",
-    "url": "https://rest.echoapi.com/users?debugp1=c",
-    "request": {
-        "body": {
-            "mode": "form-data",
-            "parameter": [
-                {
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "debugbu",
-                    "value": "o",
-                    "not_null": 1,
-                    "param_id": "11bd0715ba7005"
-                }
-            ],
-            "raw": "{\n\t\"id\": 0,\n\t\"username\": \"echo api\",\n\t\"firstName\": \"Echo\",\n\t\"lastName\": \"Api\",\n\t\"email\": \"support@echoapi.com\",\n\t\"password\": \"12345\",\n\t\"phone\": \"\",\n\t\"userStatus\": 0\n}",
-            "raw_parameter": [
-                {
-                    "param_id": "233af7b7fc5028",
-                    "description": "",
-                    "field_type": "Integer",
-                    "is_checked": 1,
-                    "key": "id",
-                    "not_null": -1,
-                    "value": ""
-                },
-                {
-                    "param_id": "233af7b7fc5029",
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "username",
-                    "not_null": -1,
-                    "value": ""
-                },
-                {
-                    "param_id": "233af7b7fc502a",
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "firstName",
-                    "not_null": -1,
-                    "value": ""
-                },
-                {
-                    "param_id": "233af7b7fc502b",
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "lastName",
-                    "not_null": -1,
-                    "value": ""
-                },
-                {
-                    "param_id": "233af7b7fc502c",
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "email",
-                    "not_null": -1,
-                    "value": ""
-                },
-                {
-                    "param_id": "233af7b7fc502d",
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "password",
-                    "not_null": -1,
-                    "value": ""
-                },
-                {
-                    "param_id": "233af7b7fc502e",
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "phone",
-                    "not_null": -1,
-                    "value": ""
-                },
-                {
-                    "param_id": "233af7b7fc502f",
-                    "description": "",
-                    "field_type": "Integer",
-                    "is_checked": 1,
-                    "key": "userStatus",
-                    "not_null": -1,
-                    "value": ""
-                }
-            ],
-            "raw_schema": {
-                "type": "object",
-                "required": [
-                    "username"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "email": {
-                        "type": "string"
-                    },
-                    "phone": {
-                        "type": "string"
-                    },
-                    "lastName": {
-                        "type": "string"
-                    },
-                    "password": {
-                        "type": "string"
-                    },
-                    "username": {
-                        "type": "string",
-                        "description": "user name"
-                    },
-                    "firstName": {
-                        "type": "string"
-                    },
-                    "userStatus": {
-                        "type": "integer"
-                    }
-                },
-                "ECHOAPI_REFS": {},
-                "ECHOAPI_ORDERS": [
-                    "id",
-                    "username",
-                    "firstName",
-                    "lastName",
-                    "email",
-                    "password",
-                    "phone",
-                    "userStatus"
-                ]
-            },
-            "binary": null
-        },
-        "header": {
-            "parameter": [
-                {
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "debugh1",
-                    "value": "a",
-                    "not_null": 1,
-                    "param_id": "11bcf3dbfa7000"
-                },
-                {
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "debugh2",
-                    "value": "b",
-                    "not_null": 1,
-                    "param_id": "11bcf4fffa7001"
-                }
-            ]
-        },
-        "query": {
-            "query_add_equal": 1,
-            "parameter": [
-                {
-                    "description": "",
-                    "field_type": "String",
-                    "is_checked": 1,
-                    "key": "debugp1",
-                    "value": "c",
-                    "not_null": 1,
-                    "param_id": "11bcfd363a7003"
-                }
-            ]
-        },
-        "cookie": {
-            "parameter": []
-        },
-        "restful": {
-            "parameter": []
-        }
-    }
-};
-design2debug(openapi, format).then((res) => {
-    console.log(res)
-}).catch((e) => {
-    console.log(e)
-});
-
-debug2design(openapi, format).then((res) => {
-    console.log(res)
-}).catch((e) => {
-    console.log(e)
-});
