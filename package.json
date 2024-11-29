@@ -1,6 +1,6 @@
 {
   "name": "convert-design-debug",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Update and transform API data for design and debug.",
   "main": "index.js",
   "scripts": {

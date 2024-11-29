@@ -78,8 +78,8 @@ const design2debug = (openapi, format) => {
         // Extract parameters from the OpenAPI definition
         const parameters = _.get(openapi, `paths['${url}'].${method}.parameters`);
         _.forEach(parameters, (item) => {
-            if (['header', 'query', 'cookie'].indexOf(item?.in) > -1) {
-                request[item?.in].parameter.push({
+            if (['header', 'query', 'cookie', 'path'].indexOf(item?.in) > -1) {
+                request[item?.in == 'path' ? 'restful' : item?.in].parameter.push({
                     "description": item?.description,
                     "field_type": _.capitalize(item?.schema?.type || 'String'),
                     "is_checked": item?.required ? 1 : -1,
@@ -146,7 +146,10 @@ const design2debug = (openapi, format) => {
                 case 'html':
                 default:
                     // Set raw body data
-                    _.set(request, 'body.raw', _.get(format, 'request.body.raw') || '');
+                    try {
+                        const mockData = await myMockSchema.mock(contentSchema);
+                        _.set(request, 'body.raw', mockData || '');
+                    } catch (e) { }
                     break;
             }
         }
@@ -205,12 +208,12 @@ const debug2design = (openapi, format) => {
 
         // Set parameters for the request
         const parameters = [], requestBody = {};
-        ['header', 'query', 'cookie'].forEach((type) => {
+        ['header', 'query', 'cookie', 'restful'].forEach((type) => {
             // Map each specified parameter type
             _.forEach(_.get(format, `request.${type}.parameter`), (item) => {
                 parameters.push({
                     "name": item?.key,
-                    "in": type,
+                    "in": type == 'restful' ? 'path' : type,
                     "description": item?.description,
                     "required": item?.not_null > 0 ? true : false,
                     "example": item?.value,
@@ -272,7 +275,9 @@ const debug2design = (openapi, format) => {
         }
 
         // Set the body schema into the Swagger object
-        _.set(swagger[format?.url][_.toLower(format?.method)], `requestBody.content['${modeMap[_.get(format, 'request.body.mode')]}'].schema`, bodySchema)
+        if (!_.isUndefined(modeMap[_.get(format, 'request.body.mode')])) {
+            _.set(swagger[format?.url][_.toLower(format?.method)], `requestBody.content['${modeMap[_.get(format, 'request.body.mode')]}'].schema`, bodySchema)
+        }
 
         // Retrieve original data from the OpenAPI definition
         const oldPath = _.first(_.keys(_.get(openapi, 'paths')))
