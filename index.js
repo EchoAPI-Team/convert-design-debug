@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const JSON5 = require('json5');
 const { toJsonSchema } = require('json2json-schema');
+const { XMLBuilder } = require('fast-xml-parser');
 const MockSchema = require('apipost-mock-schema'),
     myMockSchema = new MockSchema();
 
@@ -154,6 +155,19 @@ const design2debug = (openapi, format) => {
                     } catch (e) { }
                     break;
                 case 'xml':
+                    // Set raw body data
+                    try {
+                        const mockData = await myMockSchema.mock(contentSchema);
+
+                        if (_.isObject(mockData)) {
+                            const XmlParse = new XMLBuilder();
+                            try {
+                                const xmlText = XmlParse.build(mockData);
+                                _.set(request, 'body.raw', xmlText || '');
+                            } catch (e) { }
+                        }
+                    } catch (e) { }
+                    break;
                 case 'javascript':
                 case 'plain':
                 case 'html':
