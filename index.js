@@ -102,6 +102,7 @@ const design2debug = (openapi, format) => {
 
         // Get the content schema from the OpenAPI definition
         const contentSchema = _.get(openapi, `paths['${url}'].${method}.requestBody.content['${modeMap[_.get(request, 'body.mode')]}'].schema`);
+        const contentRaw = _.get(openapi, `paths['${url}'].${method}.requestBody.content['${modeMap[_.get(request, 'body.mode')]}'].example`);
 
         // Process the body based on its mode
         if (!_.isUndefined(contentSchema)) {
@@ -119,7 +120,7 @@ const design2debug = (openapi, format) => {
 
                             if (!_.isUndefined(existItemKey)) {
                                 // Update existing parameter value
-                                _.set(request, `body.parameter.${existItemKey}.value`, value);
+                                _.set(request, `body.parameter[${_.toNumber(existItemKey)}].value`, value);
                             } else {
                                 // Add new parameter with mock data
                                 request.body.parameter.push({
@@ -140,11 +141,6 @@ const design2debug = (openapi, format) => {
                     break;
                 case 'msgpack':
                 case 'json':
-                case 'xml':
-                case 'javascript':
-                case 'plain':
-                case 'html':
-                default:
                     // Set raw body data
                     try {
                         const mockData = await myMockSchema.mock(contentSchema);
@@ -156,6 +152,13 @@ const design2debug = (openapi, format) => {
                         }
 
                     } catch (e) { }
+                    break;
+                case 'xml':
+                case 'javascript':
+                case 'plain':
+                case 'html':
+                default:
+                    _.set(request, 'body.raw', contentRaw || '');
                     break;
             }
         }
