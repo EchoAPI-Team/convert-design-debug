@@ -92,7 +92,7 @@ const design2debug = (openapi, format) => {
         });
 
         // Determine the body mode from the format
-        const mode = _.get(format, `request.body.mode`);
+        const mode = _.get(format, `request.body.mode`) || 'none';
 
         if (mode == 'none') {
             // Map the mode to the appropriate content type if mode is 'none'
@@ -114,6 +114,7 @@ const design2debug = (openapi, format) => {
 
                     try {
                         const mockData = await myMockSchema.mock(contentSchema);
+
                         _.forEach(mockData, (value, key) => {
                             const existItemKey = _.findKey(_.get(request, 'body.parameter'), (item) => {
                                 return item?.key == key;
@@ -134,7 +135,9 @@ const design2debug = (openapi, format) => {
                                 })
                             }
                         })
-                    } catch (e) { }
+                    } catch (e) {
+                        reject(e)
+                    }
                     break;
                 case 'binary':
                     // Set binary data for body
@@ -152,7 +155,9 @@ const design2debug = (openapi, format) => {
                             _.set(request, 'body.raw', mockData || '');
                         }
 
-                    } catch (e) { }
+                    } catch (e) {
+                        reject(e)
+                    }
                     break;
                 case 'xml':
                     // Set raw body data
@@ -166,7 +171,9 @@ const design2debug = (openapi, format) => {
                                 _.set(request, 'body.raw', xmlText || '');
                             } catch (e) { }
                         }
-                    } catch (e) { }
+                    } catch (e) {
+                        reject(e)
+                    }
                     break;
                 case 'javascript':
                 case 'plain':
@@ -215,6 +222,24 @@ const recursionGetOpenAPIPara = (openapi, findKey) => {
     return results; // Return all found values
 }
 
+// Improve toJsonSchemaWithOrders function
+const toJsonSchemaWithOrders = (obj) => {
+    const schema = toJsonSchema(obj);
+    addOrders(schema);
+    return schema;
+};
+
+// Add Orders to schema
+const addOrders = (schema) => {
+    if (schema && schema.type === 'object') {
+        _.set(schema, "ECHOAPI_ORDERS", _.keys(schema.properties));
+        _.forEach(schema.properties, (item, key) => {
+            addOrders(item);
+        });
+    }
+};
+
+
 // Convert debug request format back to OpenAPI design
 const debug2design = (openapi, format) => {
     const swagger = {};
@@ -230,7 +255,7 @@ const debug2design = (openapi, format) => {
         _.set(swagger[format?.url], `${_.toLower(format?.method)}`, {})
 
         // Set parameters for the request
-        const parameters = [], requestBody = {};
+        const parameters = [];
         ['header', 'query', 'cookie', 'restful'].forEach((type) => {
             // Map each specified parameter type
             _.forEach(_.get(format, `request.${type}.parameter`), (item) => {
@@ -241,7 +266,7 @@ const debug2design = (openapi, format) => {
                     "required": item?.not_null > 0 ? true : false,
                     "example": item?.value,
                     "schema": {
-                        "type": _.toLower(item?.field_type),
+                        "type": "string",
                     }
                 })
             })
@@ -259,11 +284,10 @@ const debug2design = (openapi, format) => {
         switch (_.get(format, 'request.body.mode')) {
             case 'urlencoded':
             case 'form-data':
-                const schemaData = _.transform(_.get(format, 'request.body.parameter'), (acc, obj) => {
+                const schemaData = toJsonSchemaWithOrders(_.transform(_.get(format, 'request.body.parameter'), (acc, obj) => {
                     acc[obj.key] = obj.value;
-                }, {}) || {};
-
-                _.assign(bodySchema, toJsonSchema(schemaData))
+                }, {}) || {});
+                _.assign(bodySchema, schemaData)
                 // TODO: Add required fields and descriptions
                 break;
             case 'binary':
@@ -278,8 +302,9 @@ const debug2design = (openapi, format) => {
             case 'json':
                 try {
                     // Parse raw body for JSON schema conversion
-                    _.assign(bodySchema, toJsonSchema(JSON5.parse(String(_.get(format, 'request.body.raw') || '{}'))))
-                } catch (e) {
+                    const schemaData = toJsonSchemaWithOrders(JSON5.parse(String(_.get(format, 'request.body.raw') || '{}')));
+                    _.assign(bodySchema, schemaData)
+                } catch (e) { 
                     console.log(e)
                 }
                 break;
